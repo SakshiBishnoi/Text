@@ -3,6 +3,7 @@ import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView,
 import { useRouter } from 'expo-router';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
+import { useFonts, Lobster_400Regular } from '@expo-google-fonts/lobster';
 
 const users = [
   { id: '1', name: 'Daniel', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', online: true },
@@ -65,6 +66,12 @@ export default function ChatListScreen() {
     ...(isWeb ? { maxWidth: maxContainerWidth, alignSelf: 'center' as const, width } : { width }),
   };
   const [modalVisible, setModalVisible] = useState(false);
+  const [fontsLoaded] = useFonts({
+    Lobster_400Regular,
+  });
+  if (!fontsLoaded) {
+    return null;
+  }
 
   // Logout handler
   const handleLogout = async () => {
@@ -84,7 +91,7 @@ export default function ChatListScreen() {
       <View style={containerStyle}>
         {/* Header with Settings Icon */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <Text style={styles.header}>Messages</Text>
+          <Text style={styles.lobsterHeader}>Text.</Text>
           <TouchableOpacity style={{ backgroundColor: '#edeaf3', borderRadius: 16, padding: 8 }} onPress={() => setModalVisible(true)}>
             <Feather name="settings" size={22} color="#222" />
           </TouchableOpacity>
@@ -149,7 +156,9 @@ export default function ChatListScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#edeaf3', borderRadius: 16, paddingHorizontal: 12 }}>
             <Feather name="search" size={18} color="#aaa" style={{ marginRight: 6 }} />
             <TextInput style={[styles.searchBar, { flex: 1, backgroundColor: 'transparent', paddingHorizontal: 0 }]} placeholder="Search or start of message" placeholderTextColor="#aaa" />
-            <Feather name="mic" size={18} color="#aaa" style={{ marginLeft: 6 }} />
+            <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
+              <Feather name="mic" size={18} color="#aaa" style={{ marginLeft: 6 }} />
+            </TouchableOpacity>
           </View>
         </View>
         {/* Pinned Chats Section Title with Pin Icon */}
@@ -216,9 +225,11 @@ const styles = StyleSheet.create({
     paddingTop: 62,
     width: '100%',
   },
-  header: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  lobsterHeader: {
+    fontSize: 32,
+    fontFamily: 'Lobster_400Regular',
+    fontWeight: '400',
+    fontStyle: 'normal',
     marginBottom: 16,
     color: '#222',
   },
