@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import Svg, { Path } from 'react-native-svg';
-import Animated, { useSharedValue, useAnimatedProps, withTiming } from 'react-native-reanimated';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming,
+  Easing,
+  interpolate,
+  Extrapolate
+} from 'react-native-reanimated';
 
-const { width, height } = Dimensions.get('window');
-const AnimatedPath = Animated.createAnimatedComponent(Path);
-
-function getLiquidPath(progress: number, width: number, height: number) {
-  // This is a simple morph between two shapes for demo purposes.
-  // You can tweak the control points for a more dramatic liquid effect.
-  // progress: 0 (login), 1 (register)
-  const curve = 80 + 120 * progress; // morph the curve
-  return `M0,0 H${width} V${height} H0 V${height - curve} Q${width / 2},${height - curve - 60 * progress} ${width},${height - curve} V0 Z`;
-}
+const { width } = Dimensions.get('window');
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,20 +18,93 @@ export default function AuthScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const progress = useSharedValue(0);
-
-  const animatedProps = useAnimatedProps(() => ({
-    d: getLiquidPath(progress.value, width, height),
-  }));
+  
+  // Animation values
+  const animationProgress = useSharedValue(0);
+  const backgroundPosition = useSharedValue(0);
 
   const toggleForm = () => {
-    progress.value = withTiming(isLogin ? 1 : 0, { duration: 700 });
-    setTimeout(() => setIsLogin((prev) => !prev), 350); // switch form mid-animation
+    // Start background animation
+    backgroundPosition.value = isLogin ? 1 : 0;
+
+    // Animate out current form
+    animationProgress.value = 0.5;
+    
+    // After timeout, switch form and animate in
+    setTimeout(() => {
+      setIsLogin(prev => !prev);
+      animationProgress.value = withTiming(1, {
+        duration: 400,
+        easing: Easing.out(Easing.cubic)
+      });
+      
+      // Reset for next animation
+      setTimeout(() => {
+        animationProgress.value = 0;
+      }, 500);
+    }, 300);
   };
+
+  // Animated styles
+  const formAnimatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      animationProgress.value,
+      [0, 0.5, 1],
+      [1, 0, 1],
+      Extrapolate.CLAMP
+    );
+    
+    const translateY = interpolate(
+      animationProgress.value,
+      [0, 0.5, 1],
+      [0, 20, 0],
+      Extrapolate.CLAMP
+    );
+
+    return {
+      opacity,
+      transform: [{ translateY }]
+    };
+  });
+
+  const backgroundAnimatedStyle = useAnimatedStyle(() => {
+    const translateX = interpolate(
+      backgroundPosition.value,
+      [0, 1],
+      [0, width * 0.05],
+      Extrapolate.CLAMP
+    );
+
+    const scaleX = interpolate(
+      backgroundPosition.value,
+      [0, 1],
+      [1, 1.1],
+      Extrapolate.CLAMP
+    );
+
+    return {
+      transform: [
+        { translateX },
+        { scaleX }
+      ]
+    };
+  });
 
   return (
     <View style={styles.screen}>
-      <Animated.View style={{ width: '100%', maxWidth: 400, alignSelf: 'center', zIndex: 2 }}>
+      {/* Background animation */}
+      <Animated.View 
+        style={[
+          styles.animatedBackground, 
+          backgroundAnimatedStyle
+        ]} 
+      />
+
+      {/* Form content */}
+      <Animated.View style={[
+        { width: '100%', maxWidth: 400, alignSelf: 'center', zIndex: 2 },
+        formAnimatedStyle
+      ]}>
         <Text style={styles.title}>{isLogin ? "Let's Sign you in." : 'Create your account'}</Text>
         <Text style={styles.subtitle}>
           {isLogin ? "Welcome back. You've been missed!" : 'Sign up to get started!'}
@@ -97,10 +167,6 @@ export default function AuthScreen() {
           </Text>
         </TouchableOpacity>
       </Animated.View>
-      {/* Liquid animation overlay */}
-      <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
-        <AnimatedPath animatedProps={animatedProps} fill="#a084e8" opacity={0.13} />
-      </Svg>
     </View>
   );
 }
@@ -116,6 +182,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: LIGHT_PURPLE,
     padding: 16,
+    overflow: 'hidden', // Important for animation
+  },
+  animatedBackground: {
+    position: 'absolute',
+    top: -100,
+    left: -50,
+    right: -50,
+    bottom: -100,
+    backgroundColor: '#a084e818',
+    borderRadius: 60,
+    transform: [{ rotate: '-10deg' }],
   },
   title: {
     fontSize: 28,
