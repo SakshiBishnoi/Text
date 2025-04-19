@@ -136,6 +136,7 @@ export default function AuthScreen() {
           localStorage.setItem('accessToken', data.accessToken);
           localStorage.setItem('refreshToken', data.refreshToken);
         }
+        router.push('/chat'); // Navigate to chat page after login
         Alert.alert('Success', 'Login successful!');
         // Do not navigate yet
       } else {
