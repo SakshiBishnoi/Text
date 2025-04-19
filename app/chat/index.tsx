@@ -117,8 +117,8 @@ export default function ChatListScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={{ marginBottom: 16, marginLeft: -4 }}
-          contentContainerStyle={{ paddingRight: 8, paddingLeft: 4, alignItems: 'center' }}
+          style={{ marginBottom: 16, marginLeft: -1 }}
+          contentContainerStyle={{ paddingRight: 1, paddingLeft: 1, alignItems: 'center' }}
         >
           {users.map((user, idx) => (
             <TouchableOpacity
@@ -161,7 +161,7 @@ export default function ChatListScreen() {
         {/* TODO: Wrap with Animatable.View for fadeIn/slideIn animation */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pinnedChatsRow} contentContainerStyle={{ gap: 16 }}>
           {pinnedChats.map((chat, idx) => (
-            <TouchableOpacity key={chat.id} style={[styles.pinnedChat, { backgroundColor: chat.bg, width: isWeb ? 192 : 132 }]}> 
+            <TouchableOpacity key={chat.id} style={[styles.pinnedChat, { backgroundColor: chat.bg, width: isWeb ? 154 : 106 }]}> 
               <Image source={{ uri: chat.avatar }} style={styles.pinnedAvatar} />
               <Text style={styles.pinnedName}>{chat.name}</Text>
               <Text style={styles.pinnedMsg} numberOfLines={1}>{chat.lastMessage}</Text>
@@ -282,8 +282,8 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     position: 'relative',
-    minWidth: 180,
-    maxWidth: 340,
+    minWidth: 144,
+    maxWidth: 272,
   },
   pinnedAvatar: {
     width: 54,
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   },
   avatarButton: {
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 4,
     padding: 0,
     borderRadius: 24,
     backgroundColor: 'transparent',
