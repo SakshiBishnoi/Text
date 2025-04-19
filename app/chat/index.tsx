@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const users = [
   { id: '1', name: 'Daniel', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', online: true },
@@ -66,42 +67,71 @@ export default function ChatListScreen() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f7f6fb' }} contentContainerStyle={{ alignItems: 'center', paddingBottom: 32 }}>
       <View style={containerStyle}>
-        <Text style={styles.header}>Messages</Text>
+        {/* Header with Settings Icon */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <Text style={styles.header}>Messages</Text>
+          <TouchableOpacity style={{ backgroundColor: '#edeaf3', borderRadius: 16, padding: 8 }}>
+            <Feather name="settings" size={22} color="#222" />
+          </TouchableOpacity>
+        </View>
         {/* Avatars Row */}
         <View style={styles.avatarsRow}>
           {users.map((user, idx) => (
-            <View key={user.id} style={styles.avatarWrapper}>
-              {user.avatar ? (
-                <Image source={{ uri: user.avatar }} style={styles.avatar} />
-              ) : (
-                <View style={[styles.avatar, styles.avatarPlaceholder]}><Text style={{ color: '#fff', fontWeight: 'bold' }}>{user.name}</Text></View>
-              )}
-              {user.online && <View style={styles.onlineDot} />}
+            <View key={user.id} style={{ alignItems: 'center', marginRight: 12 }}>
+              <View style={styles.avatarWrapper}>
+                {user.avatar && user.name !== '+15' ? (
+                  <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                ) : (
+                  <View style={[styles.avatar, styles.avatarPlaceholder, { backgroundColor: '#222', justifyContent: 'center', alignItems: 'center' }]}> 
+                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{user.name}</Text>
+                  </View>
+                )}
+                {/* Only show online dot for real users, not '+15' */}
+                {user.online && user.avatar && user.name !== '+15' && (
+                  <View style={styles.onlineDot} />
+                )}
+              </View>
+              <Text style={{ fontSize: 12, color: '#222', textAlign: 'center', marginTop: 4 }}>{user.name}</Text>
             </View>
           ))}
         </View>
         {/* Search Bar */}
         <View style={styles.searchBarWrapper}>
-          <TextInput style={styles.searchBar} placeholder="Search or start of message" placeholderTextColor="#aaa" />
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#edeaf3', borderRadius: 16, paddingHorizontal: 12 }}>
+            <Feather name="search" size={18} color="#aaa" style={{ marginRight: 6 }} />
+            <TextInput style={[styles.searchBar, { flex: 1, backgroundColor: 'transparent', paddingHorizontal: 0 }]} placeholder="Search or start of message" placeholderTextColor="#aaa" />
+            <Feather name="mic" size={18} color="#aaa" style={{ marginLeft: 6 }} />
+          </View>
         </View>
-        {/* Pinned Chats */}
-        <Text style={styles.sectionTitle}>Pinned Chats</Text>
+        {/* Pinned Chats Section Title with Pin Icon */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+          <MaterialCommunityIcons name="pin" size={18} color="#7c5dfa" style={{ marginRight: 6 }} />
+          <Text style={styles.sectionTitle}>Pinned Chats</Text>
+        </View>
+        {/* Pinned Chats (add animation wrapper here) */}
+        {/* TODO: Wrap with Animatable.View for fadeIn/slideIn animation */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pinnedChatsRow} contentContainerStyle={{ gap: 16 }}>
           {pinnedChats.map((chat, idx) => (
             <TouchableOpacity key={chat.id} style={[styles.pinnedChat, { backgroundColor: chat.bg, width: isWeb ? 320 : 220 }]}> 
               <Image source={{ uri: chat.avatar }} style={styles.pinnedAvatar} />
               <Text style={styles.pinnedName}>{chat.name}</Text>
               <Text style={styles.pinnedMsg} numberOfLines={1}>{chat.lastMessage}</Text>
+              {/* Unread badge for the second pinned chat */}
               {idx === 1 && (
                 <View style={styles.pinnedBadge}><Text style={styles.pinnedBadgeText}>2</Text></View>
               )}
             </TouchableOpacity>
           ))}
         </ScrollView>
-        {/* All Chats */}
-        <Text style={styles.sectionTitle}>All Chats</Text>
+        {/* All Chats Section Title with Chat Icon */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+          <MaterialCommunityIcons name="chat" size={18} color="#7c5dfa" style={{ marginRight: 6 }} />
+          <Text style={styles.sectionTitle}>All Chats</Text>
+        </View>
+        {/* All Chats (add animation wrapper here) */}
+        {/* TODO: Wrap with Animatable.View for fadeIn/slideIn animation */}
         <View>
-          {allChats.map((chat) => (
+          {allChats.map((chat, idx) => (
             <TouchableOpacity key={chat.id} style={styles.allChatRow}>
               {chat.avatar ? (
                 <Image source={{ uri: chat.avatar }} style={styles.allChatAvatar} />
@@ -111,10 +141,16 @@ export default function ChatListScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.allChatName}>{chat.name}</Text>
                 <Text style={styles.allChatMsg} numberOfLines={1}>
-                  {chat.isVoice ? '🎤 ' : chat.isTyping ? '✍️ ' : ''}{chat.lastMessage}
+                  {chat.isVoice ? <Feather name="mic" size={14} color="#7c5dfa" /> : chat.isTyping ? <MaterialCommunityIcons name="pencil" size={14} color="#7c5dfa" /> : null} {chat.lastMessage}
                 </Text>
               </View>
               <Text style={styles.allChatTime}>{chat.time}</Text>
+              {/* Unread badge for the first chat */}
+              {idx === 0 && (
+                <View style={{ backgroundColor: '#7c5dfa', borderRadius: 8, minWidth: 16, minHeight: 16, alignItems: 'center', justifyContent: 'center', marginLeft: 8, paddingHorizontal: 4 }}>
+                  <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>1</Text>
+                </View>
+              )}
             </TouchableOpacity>
           ))}
         </View>
@@ -143,12 +179,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   avatarWrapper: {
-    marginRight: 12,
     position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatar: {
     width: 44,
-    aspectRatio: 1,
+    height: 44,
     borderRadius: 22,
     backgroundColor: '#ddd',
     maxWidth: 44,
@@ -161,14 +198,15 @@ const styles = StyleSheet.create({
   },
   onlineDot: {
     position: 'absolute',
-    right: 2,
-    bottom: 2,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    right: -4,
+    bottom: -4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     backgroundColor: '#4cd137',
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: '#fff',
+    zIndex: 2,
   },
   searchBarWrapper: {
     marginBottom: 18,
