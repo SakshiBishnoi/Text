@@ -20,4 +20,4 @@ app.use('/api/auth', authRoutes);
 app.get('/api/protected', verifyToken, (req, res) => res.json({ message: "Protected data" }));
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); 
+app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`)); 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import Animated, { 
   useSharedValue, 
@@ -10,8 +10,16 @@ import Animated, {
   Extrapolate
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 
 const { width } = Dimensions.get('window');
+
+// Use localhost for web, IP for native apps
+const API_URL = Platform.OS === 'web' 
+  ? 'http://localhost:3001/api/auth'
+  : 'http://192.168.1.5:3001/api/auth';
+
+console.log(`Using API URL: ${API_URL}`);
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,11 +28,26 @@ export default function AuthScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [direction, setDirection] = useState(1); // 1 for register, -1 for login
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   
   // Animation values
   const animationProgress = useSharedValue(0);
   const backgroundPosition = useSharedValue(0);
+
+  // Test backend connection on component mount
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        const response = await fetch(API_URL.split('/api/auth')[0], { method: 'GET' });
+        console.log('Backend connection test:', response.status >= 200 ? 'Success!' : 'Failed');
+      } catch (err) {
+        console.log('Backend connection test failed:', err);
+      }
+    };
+    
+    testConnection();
+  }, []);
 
   const toggleForm = () => {
     setDirection(isLogin ? 1 : -1); // If currently login, slide right to register; else slide left to login
@@ -44,17 +67,27 @@ export default function AuthScreen() {
 
   // Register handler
   const handleRegister = async () => {
+    console.log('Register button clicked');
+    
     if (!email || !username || !password) {
       Alert.alert('Error', 'Please fill all fields.');
       return;
     }
+    
+    setIsLoading(true);
+    console.log('Sending register request...');
+    
     try {
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, displayName: username }),
       });
+      
+      console.log('Register response status:', response.status);
       const data = await response.json();
+      console.log('Register response data:', data);
+      
       if (response.ok) {
         Alert.alert('Success', 'Registration successful! Please login.');
         setIsLogin(true); // Switch to login mode
@@ -62,15 +95,58 @@ export default function AuthScreen() {
       } else {
         Alert.alert('Error', data.error || 'Registration failed.');
       }
-    } catch (err) {
-      Alert.alert('Error', 'Could not connect to server.');
+    } catch (err: unknown) {
+      console.log('Register error:', err);
+      Alert.alert('Error', `Could not connect to server. ${err instanceof Error ? err.message : 'Unknown error occurred'}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Login handler (placeholder)
-  const handleLogin = () => {
-    // TODO: Implement login logic
-    Alert.alert('Info', 'Login logic not implemented yet.');
+  // Login handler
+  const handleLogin = async () => {
+    console.log('Login button clicked');
+    
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter email and password.');
+      return;
+    }
+    
+    setIsLoading(true);
+    console.log('Sending login request...');
+    
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      console.log('Login response status:', response.status);
+      const data = await response.json();
+      console.log('Login response data:', data);
+      
+      if (response.ok) {
+        // Store tokens securely
+        if (Platform.OS !== 'web') {
+          await SecureStore.setItemAsync('accessToken', data.accessToken);
+          await SecureStore.setItemAsync('refreshToken', data.refreshToken);
+        } else {
+          // For web, use localStorage
+          localStorage.setItem('accessToken', data.accessToken);
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
+        Alert.alert('Success', 'Login successful!');
+        // Do not navigate yet
+      } else {
+        Alert.alert('Error', data.error || 'Login failed.');
+      }
+    } catch (err: unknown) {
+      console.log('Login error:', err);
+      Alert.alert('Error', `Could not connect to server. ${err instanceof Error ? err.message : 'Unknown error occurred'}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Animated styles
@@ -181,9 +257,10 @@ export default function AuthScreen() {
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, isLoading && styles.buttonDisabled]}
           activeOpacity={0.8}
           onPress={isLogin ? handleLogin : handleRegister}
+          disabled={isLoading}
         >
           <Text style={styles.buttonText}>{isLogin ? 'Sign in' : 'Register'}</Text>
         </TouchableOpacity>
@@ -279,6 +356,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 2,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: {
     color: WHITE,
