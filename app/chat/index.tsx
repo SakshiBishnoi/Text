@@ -113,10 +113,20 @@ export default function ChatListScreen() {
             </View>
           </TouchableOpacity>
         </Modal>
-        {/* Avatars Row */}
-        <View style={styles.avatarsRow}>
+        {/* Avatars Row - now horizontally scrollable and as buttons */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginBottom: 16, marginLeft: -4 }}
+          contentContainerStyle={{ paddingRight: 8, paddingLeft: 4, alignItems: 'center' }}
+        >
           {users.map((user, idx) => (
-            <View key={user.id} style={{ alignItems: 'center', marginRight: 12 }}>
+            <TouchableOpacity
+              key={user.id}
+              style={styles.avatarButton}
+              activeOpacity={0.7}
+              onPress={() => {}}
+            >
               <View style={styles.avatarWrapper}>
                 {user.avatar && user.name !== '+15' ? (
                   <Image source={{ uri: user.avatar }} style={styles.avatar} />
@@ -130,10 +140,10 @@ export default function ChatListScreen() {
                   <View style={styles.onlineDot} />
                 )}
               </View>
-              <Text style={{ fontSize: 12, color: '#222', textAlign: 'center', marginTop: 4 }}>{user.name}</Text>
-            </View>
+              <Text style={styles.avatarLabel}>{user.name}</Text>
+            </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
         {/* Search Bar */}
         <View style={styles.searchBarWrapper}>
           <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#edeaf3', borderRadius: 16, paddingHorizontal: 12 }}>
@@ -213,9 +223,7 @@ const styles = StyleSheet.create({
     color: '#222',
   },
   avatarsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
+    // removed, replaced by horizontal ScrollView
   },
   avatarWrapper: {
     position: 'relative',
@@ -379,5 +387,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#222',
     fontWeight: '500',
+  },
+  avatarButton: {
+    alignItems: 'center',
+    marginRight: 16,
+    padding: 0,
+    borderRadius: 24,
+    backgroundColor: 'transparent',
+    minWidth: 60,
+    minHeight: 70,
+    transitionProperty: Platform.OS === 'web' ? 'box-shadow,transform' : undefined,
+    transitionDuration: Platform.OS === 'web' ? '0.15s' : undefined,
+  },
+  avatarLabel: {
+    fontSize: 12,
+    color: '#222',
+    textAlign: 'center',
+    marginTop: 4,
+    fontWeight: '500',
+    maxWidth: 60,
   },
 }); 
