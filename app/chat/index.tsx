@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions, Platform, Modal, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as SecureStore from 'expo-secure-store';
 
 const users = [
   { id: '1', name: 'Daniel', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', online: true },
@@ -63,6 +64,20 @@ export default function ChatListScreen() {
     ...styles.container,
     ...(isWeb ? { maxWidth: maxContainerWidth, alignSelf: 'center' as const, width } : { width }),
   };
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // Logout handler
+  const handleLogout = async () => {
+    if (Platform.OS !== 'web') {
+      await SecureStore.deleteItemAsync('accessToken');
+      await SecureStore.deleteItemAsync('refreshToken');
+    } else {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+    setModalVisible(false);
+    router.replace('/auth');
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f7f6fb' }} contentContainerStyle={{ alignItems: 'center', paddingBottom: 32 }}>
@@ -70,10 +85,34 @@ export default function ChatListScreen() {
         {/* Header with Settings Icon */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <Text style={styles.header}>Messages</Text>
-          <TouchableOpacity style={{ backgroundColor: '#edeaf3', borderRadius: 16, padding: 8 }}>
+          <TouchableOpacity style={{ backgroundColor: '#edeaf3', borderRadius: 16, padding: 8 }} onPress={() => setModalVisible(true)}>
             <Feather name="settings" size={22} color="#222" />
           </TouchableOpacity>
         </View>
+        {/* Settings Modal */}
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
+            <View style={styles.modalMenu}>
+              <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); Alert.alert('Settings', 'Settings option pressed!'); }}>
+                <Feather name="settings" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
+                <Text style={styles.menuText}>Settings</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); Alert.alert('Profile', 'Profile option pressed!'); }}>
+                <MaterialCommunityIcons name="account" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
+                <Text style={styles.menuText}>Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                <Feather name="log-out" size={20} color="#e74c3c" style={{ marginRight: 12 }} />
+                <Text style={[styles.menuText, { color: '#e74c3c' }]}>Log Out</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
         {/* Avatars Row */}
         <View style={styles.avatarsRow}>
           {users.map((user, idx) => (
@@ -112,7 +151,7 @@ export default function ChatListScreen() {
         {/* TODO: Wrap with Animatable.View for fadeIn/slideIn animation */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pinnedChatsRow} contentContainerStyle={{ gap: 16 }}>
           {pinnedChats.map((chat, idx) => (
-            <TouchableOpacity key={chat.id} style={[styles.pinnedChat, { backgroundColor: chat.bg, width: isWeb ? 320 : 220 }]}> 
+            <TouchableOpacity key={chat.id} style={[styles.pinnedChat, { backgroundColor: chat.bg, width: isWeb ? 192 : 132 }]}> 
               <Image source={{ uri: chat.avatar }} style={styles.pinnedAvatar} />
               <Text style={styles.pinnedName}>{chat.name}</Text>
               <Text style={styles.pinnedMsg} numberOfLines={1}>{chat.lastMessage}</Text>
@@ -164,7 +203,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f7f6fb',
     paddingHorizontal: 16,
-    paddingTop: 32,
+    paddingTop: 62,
     width: '100%',
   },
   header: {
@@ -309,5 +348,36 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#888',
     marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(44, 44, 84, 0.18)',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  modalMenu: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    marginBottom: 40,
+    width: 260,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f7',
+  },
+  menuText: {
+    fontSize: 16,
+    color: '#222',
+    fontWeight: '500',
   },
 }); 

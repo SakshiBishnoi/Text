@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -20,11 +21,23 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-      // Always redirect to auth page on app start
-      router.replace('/auth');
+    async function checkTokenAndRedirect() {
+      if (loaded) {
+        let token = null;
+        if (typeof window !== 'undefined' && window.localStorage) {
+          token = localStorage.getItem('accessToken');
+        } else {
+          token = await SecureStore.getItemAsync('accessToken');
+        }
+        if (token) {
+          router.replace('/chat');
+        } else {
+          router.replace('/auth');
+        }
+        SplashScreen.hideAsync();
+      }
     }
+    checkTokenAndRedirect();
   }, [loaded]);
 
   if (!loaded) {
@@ -36,8 +49,8 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth/index" options={{ title: 'Auth', headerShown: false }} />
-        <Stack.Screen name="chat/index" options={{ title: 'Chats', headerShown: true }} />
-        <Stack.Screen name="chat/detail" options={{ title: 'Chat Detail', headerShown: true }} />
+        <Stack.Screen name="chat/index" options={{ title: 'Chats', headerShown: false }} />
+        <Stack.Screen name="chat/detail" options={{ title: 'Chat Detail', headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
