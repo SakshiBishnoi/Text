@@ -17,7 +17,7 @@ const { width } = Dimensions.get('window');
 // Use localhost for web, IP for native apps
 const API_URL = Platform.OS === 'web' 
   ? 'http://localhost:3001/api/auth'
-  : 'http://192.168.1.5:3001/api/auth';
+  : 'http://192.168.29.223:3001/api/auth';
 
 console.log(`Using API URL: ${API_URL}`);
 
