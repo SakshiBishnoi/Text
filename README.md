@@ -1,3 +1,40 @@
+# How to Run the Expo App
+
+To test if the Expo app is running, use one of the following commands from the `Text` directory:
+
+```bash
+npm run web         # Run in your browser
+npx expo start      # Open Expo Dev Tools (choose Android/iOS/Web)
+```
+
+---
+
+# Project Structure (MVP)
+
+```
+Text/
+├── app/                # File-based routing (Expo Router)
+│   ├── auth/           # Authentication screens (login, register)
+│   ├── chat/           # Chat screens (chat list, chat detail)
+│   └── _layout.tsx     # Main layout/navigation
+├── components/         # Reusable UI components
+├── navigation/         # Navigation helpers (if needed)
+├── services/           # API/WebSocket services
+├── state/              # State management (context, hooks)
+├── constants/          # App-wide constants
+├── hooks/              # Custom hooks
+├── assets/             # Images, fonts, etc.
+├── package.json        # Project config
+└── ...
+```
+
+- **app/auth/**: Login, Register, Profile screens
+- **app/chat/**: Chat list, Chat detail, Image sharing
+- **services/**: API and WebSocket logic
+- **state/**: Context providers, reducers, etc.
+
+---
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
