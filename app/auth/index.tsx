@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import Animated, { 
   useSharedValue, 
@@ -9,6 +9,7 @@ import Animated, {
   interpolate,
   Extrapolate
 } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
@@ -18,31 +19,58 @@ export default function AuthScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [direction, setDirection] = useState(1); // 1 for register, -1 for login
+  const router = useRouter();
   
   // Animation values
   const animationProgress = useSharedValue(0);
   const backgroundPosition = useSharedValue(0);
 
   const toggleForm = () => {
-    // Start background animation
+    setDirection(isLogin ? 1 : -1); // If currently login, slide right to register; else slide left to login
     backgroundPosition.value = isLogin ? 1 : 0;
-
-    // Animate out current form
     animationProgress.value = 0.5;
-    
-    // After timeout, switch form and animate in
     setTimeout(() => {
       setIsLogin(prev => !prev);
       animationProgress.value = withTiming(1, {
         duration: 400,
         easing: Easing.out(Easing.cubic)
       });
-      
-      // Reset for next animation
       setTimeout(() => {
         animationProgress.value = 0;
       }, 500);
     }, 300);
+  };
+
+  // Register handler
+  const handleRegister = async () => {
+    if (!email || !username || !password) {
+      Alert.alert('Error', 'Please fill all fields.');
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, displayName: username }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        Alert.alert('Success', 'Registration successful! Please login.');
+        setIsLogin(true); // Switch to login mode
+        setPassword(''); // Clear password field
+      } else {
+        Alert.alert('Error', data.error || 'Registration failed.');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Could not connect to server.');
+    }
+  };
+
+  // Login handler (placeholder)
+  const handleLogin = () => {
+    // TODO: Implement login logic
+    Alert.alert('Info', 'Login logic not implemented yet.');
   };
 
   // Animated styles
@@ -53,17 +81,15 @@ export default function AuthScreen() {
       [1, 0, 1],
       Extrapolate.CLAMP
     );
-    
-    const translateY = interpolate(
+    const translateX = interpolate(
       animationProgress.value,
       [0, 0.5, 1],
-      [0, 20, 0],
+      [0, direction * 50, 0], // Slide right for register, left for login
       Extrapolate.CLAMP
     );
-
     return {
       opacity,
-      transform: [{ translateY }]
+      transform: [{ translateX }]
     };
   });
 
@@ -157,7 +183,7 @@ export default function AuthScreen() {
         <TouchableOpacity
           style={styles.button}
           activeOpacity={0.8}
-          onPress={() => { /* TODO: Add auth logic */ }}
+          onPress={isLogin ? handleLogin : handleRegister}
         >
           <Text style={styles.buttonText}>{isLogin ? 'Sign in' : 'Register'}</Text>
         </TouchableOpacity>
