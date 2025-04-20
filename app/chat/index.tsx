@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions, Platform, Modal, Alert } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions, Platform, Modal, Alert, Pressable, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
@@ -13,20 +13,36 @@ const users = [
   { id: '5', name: '+15', avatar: null, online: false },
 ];
 
+// Softer, harmonious pastel palette for light backgrounds
+const pastelColors = ['#F6E7FF', '#D0F4DE', '#FFF6D6', '#D6E6FF'];
 const pinnedChats = [
   {
     id: '1',
     name: 'George Lobko',
     avatar: 'https://randomuser.me/api/portraits/men/46.jpg',
     lastMessage: "Thanks for the quick reply!",
-    bg: '#E6F7E6',
+    bg: pastelColors[0],
   },
   {
     id: '2',
-    name: 'Amelia Korns',
-    avatar: 'https://randomuser.me/api/portraits/women/47.jpg',
-    lastMessage: "I'm stuck in 🚗 traffic...",
-    bg: '#E6F0F7',
+    name: 'Emily Carter',
+    avatar: 'https://randomuser.me/api/portraits/women/51.jpg',
+    lastMessage: "Let's catch up soon!",
+    bg: pastelColors[1],
+  },
+  {
+    id: '3',
+    name: 'Michael Smith',
+    avatar: 'https://randomuser.me/api/portraits/men/52.jpg',
+    lastMessage: "See you at the meeting!",
+    bg: pastelColors[2],
+  },
+  {
+    id: '4',
+    name: 'Sophia Lee',
+    avatar: 'https://randomuser.me/api/portraits/women/53.jpg',
+    lastMessage: "Got your message!",
+    bg: pastelColors[3],
   },
 ];
 
@@ -86,6 +102,9 @@ export default function ChatListScreen() {
     router.replace('/auth');
   };
 
+  const cardWidth = isWeb ? 154 : 106;
+  const gap = 16;
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f7f6fb' }} contentContainerStyle={{ alignItems: 'center', paddingBottom: 32 }}>
       <View style={containerStyle}>
@@ -132,7 +151,7 @@ export default function ChatListScreen() {
               key={user.id}
               style={styles.avatarButton}
               activeOpacity={0.7}
-              onPress={() => {}}
+              onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: user.id, name: user.name, avatar: user.avatar } })}
             >
               <View style={styles.avatarWrapper}>
                 {user.avatar && user.name !== '+15' ? (
@@ -168,19 +187,33 @@ export default function ChatListScreen() {
         </View>
         {/* Pinned Chats (add animation wrapper here) */}
         {/* TODO: Wrap with Animatable.View for fadeIn/slideIn animation */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pinnedChatsRow} contentContainerStyle={{ gap: 16 }}>
-          {pinnedChats.map((chat, idx) => (
-            <TouchableOpacity key={chat.id} style={[styles.pinnedChat, { backgroundColor: chat.bg, width: isWeb ? 154 : 106 }]}> 
+        <FlatList
+          data={pinnedChats}
+          keyExtractor={item => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 8, alignItems: 'center' }}
+          ItemSeparatorComponent={() => <View style={{ width: gap }} />}
+          renderItem={({ item: chat }) => (
+            <Pressable
+              style={[
+                styles.pinnedChat,
+                {
+                  backgroundColor: chat.bg,
+                  width: cardWidth,
+                  marginVertical: 8,
+                  // No shadow or elevation
+                },
+              ]}
+              onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } })}
+            >
               <Image source={{ uri: chat.avatar }} style={styles.pinnedAvatar} />
               <Text style={styles.pinnedName}>{chat.name}</Text>
               <Text style={styles.pinnedMsg} numberOfLines={1}>{chat.lastMessage}</Text>
-              {/* Unread badge for the second pinned chat */}
-              {idx === 1 && (
-                <View style={styles.pinnedBadge}><Text style={styles.pinnedBadgeText}>2</Text></View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+            </Pressable>
+          )}
+          getItemLayout={(_, index) => ({ length: cardWidth + gap, offset: (cardWidth + gap) * index, index })}
+        />
         {/* All Chats Section Title with Chat Icon */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
           <MaterialCommunityIcons name="chat" size={18} color="#7c5dfa" style={{ marginRight: 6 }} />
@@ -190,7 +223,7 @@ export default function ChatListScreen() {
         {/* TODO: Wrap with Animatable.View for fadeIn/slideIn animation */}
         <View>
           {allChats.map((chat, idx) => (
-            <TouchableOpacity key={chat.id} style={styles.allChatRow}>
+            <TouchableOpacity key={chat.id} style={styles.allChatRow} onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } })}>
               {chat.avatar ? (
                 <Image source={{ uri: chat.avatar }} style={styles.allChatAvatar} />
               ) : (
@@ -314,20 +347,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#555',
     marginBottom: 2,
-  },
-  pinnedBadge: {
-    position: 'absolute',
-    top: 10,
-    right: 18,
-    backgroundColor: '#2d8cff',
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  pinnedBadgeText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 12,
   },
   allChatRow: {
     flexDirection: 'row',

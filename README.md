@@ -1,87 +1,151 @@
-# How to Run the Expo App
+# Text: Modern Cross-Platform Chat App 🚀
 
-To test if the Expo app is running, use one of the following commands from the `Text` directory:
-
-```bash
-npm run web         # Run in your browser
-npx expo start      # Open Expo Dev Tools (choose Android/iOS/Web)
-```
+A beautiful, full-featured chat application built with [Expo](https://expo.dev), [React Native](https://reactnative.dev/), and [Expo Router](https://docs.expo.dev/router/introduction/).
+Supports **Android, iOS, and Web** with a single codebase.
 
 ---
 
-# Project Structure (MVP)
+## ✨ Features
+
+- **Modern Chat UI**
+  - Pinned chats with pastel cards, avatars, and last message preview
+  - Group and single chat screens with message bubbles, image galleries, and input bar
+  - Animated transitions, parallax effects, and haptic feedback
+- **Authentication**
+  - Animated login/register forms
+  - Secure token storage (SecureStore/localStorage)
+  - Backend connectivity check
+- **Universal Design**
+  - Responsive layouts for web and mobile
+  - Light & dark mode with theme-aware components
+  - Custom fonts and icons
+- **Real-Time Communication**
+  - WebSocket integration for live chat (see `services/websocket.ts`)
+- **Reusable Components**
+  - ParallaxScrollView, Collapsible sections, ThemedText/View, HapticTab, HelloWave animation, ExternalLink, and more
+- **Developer Experience**
+  - File-based routing with Expo Router
+  - TypeScript, Jest testing, and linting
+  - Easy to extend and customize
+
+---
+
+## 🚦 Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Run on web
+npm run web
+
+# Or start Expo Dev Tools for all platforms
+npx expo start
+```
+
+- Edit files in the `app/` directory to start building your features.
+- Use `npm run reset-project` to reset to a blank starter.
+
+---
+
+## 🗂️ Project Structure
 
 ```
 Text/
 ├── app/                # File-based routing (Expo Router)
 │   ├── auth/           # Authentication screens (login, register)
-│   ├── chat/           # Chat screens (chat list, chat detail)
-│   └── _layout.tsx     # Main layout/navigation
-├── components/         # Reusable UI components
-├── navigation/         # Navigation helpers (if needed)
-├── services/           # API/WebSocket services
-├── state/              # State management (context, hooks)
-├── constants/          # App-wide constants
-├── hooks/              # Custom hooks
-├── assets/             # Images, fonts, etc.
+│   ├── chat/           # Chat list, single chat, group chat
+│   └── (tabs)/         # Tab navigation (Explore, Home, etc.)
+├── components/         # Reusable UI (ParallaxScrollView, Collapsible, ThemedText, etc.)
+├── services/           # API/WebSocket logic
+├── hooks/              # Custom hooks (theme, color scheme)
+├── constants/          # App-wide constants (colors, etc.)
+├── assets/             # Fonts, images, icons
 ├── package.json        # Project config
 └── ...
 ```
 
-- **app/auth/**: Login, Register, Profile screens
-- **app/chat/**: Chat list, Chat detail, Image sharing
-- **services/**: API and WebSocket logic
-- **state/**: Context providers, reducers, etc.
+---
+
+## 🖌️ UI/UX Highlights
+
+- **Pinned Chats**: Horizontal scrollable cards, each with unique pastel color, shadow, and avatar.
+- **Chat List**: Modern, clean, and responsive with search, avatars, and sectioned chats.
+- **Single Chat**:
+  - Header with avatar, name, call/video icons
+  - Message bubbles (left/right), image gallery, and input bar
+  - Fully responsive and theme-aware
+- **Explore Tab**: Interactive collapsible sections, parallax header, and links to docs.
+- **Animations**:
+  - Parallax header (see `ParallaxScrollView`)
+  - Waving hand emoji (`HelloWave`)
+  - Animated transitions in auth and chat screens
 
 ---
 
-# Welcome to your Expo app 👋
+## 🛠️ Tech Stack
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+- **React Native** (0.76+)
+- **Expo** (52+)
+- **Expo Router** for navigation
+- **TypeScript** for type safety
+- **Jest** for testing
+- **Socket.io-client** for real-time features
+- **react-native-reanimated** for animations
+- **@expo/vector-icons** and custom fonts
 
-## Get started
+---
 
-1. Install dependencies
+## 🌐 Web & Mobile Ready
 
-   ```bash
-   npm install
-   ```
+- Works out of the box on Android, iOS, and Web ([Expo Web](https://docs.expo.dev/workflow/web/))
+- Responsive layouts and touch-friendly UI
+- Theme-aware (light/dark mode)
 
-2. Start the app
+---
 
-   ```bash
-    npx expo start
-   ```
+## 🧩 Notable Components
 
-In the output, you'll find options to open the app in a
+- `ParallaxScrollView`: Parallax effect for headers
+- `Collapsible`: Expand/collapse sections
+- `ThemedText` & `ThemedView`: Theme-aware UI
+- `HapticTab`: Haptic feedback on tab press (iOS)
+- `HelloWave`: Animated emoji
+- `ExternalLink`: Smart external links (in-app browser on mobile)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🔌 Real-Time & API
 
-## Get a fresh project
+- `services/websocket.ts`:
+  - Connects to a backend WebSocket server for live chat
+  - Easily extend for notifications, typing indicators, etc.
 
-When you're ready, run:
+---
 
-```bash
-npm run reset-project
-```
+## 🖍️ Customization
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- **Colors**: Edit `constants/Colors.ts` for your palette
+- **Fonts**: Add to `assets/fonts/` and load in `_layout.tsx`
+- **Images**: Place in `assets/images/` and use in your screens
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📚 Learn More
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Native Docs](https://reactnative.dev/)
+- [Expo Router](https://docs.expo.dev/router/introduction/)
+- [Socket.io-client](https://socket.io/docs/v4/client-api/)
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## 🤝 Community & Contributing
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Expo on GitHub](https://github.com/expo/expo)
+- [Expo Discord](https://chat.expo.dev)
+- PRs and issues welcome!
+
+---
+
+> _Built with ❤️ using Expo, React Native, and a passion for beautiful, universal apps._
