@@ -1,6 +1,22 @@
-import React, { useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, ScrollView, Platform, useWindowDimensions, ActivityIndicator, Keyboard } from 'react-native';
-import { Ionicons, Feather } from '@expo/vector-icons';
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Platform,
+  useWindowDimensions,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  TextInput,
+  SafeAreaView,
+  StatusBar,
+  Keyboard,
+  Dimensions,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 
@@ -10,21 +26,32 @@ interface SingleChatScreenProps {
   avatar?: string;
 }
 
-// Accept props for id, name, avatar
+const HEADER_HEIGHT = 64;
+
 export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenProps) {
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const maxContainerWidth = 600;
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
-  
+  const inputRef = useRef<TextInput>(null);
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState([
+    { id: 1, text: 'Hey! How are you?', fromMe: false },
+    { id: 2, text: "I'm good, thanks! How about you?", fromMe: true },
+    { id: 3, text: 'Doing great! Want to grab some donuts?', fromMe: false },
+    { id: 4, text: 'Absolutely! 🍩', fromMe: true },
+    { id: 5, text: 'What kind?', fromMe: false },
+    { id: 6, text: 'Glazed or chocolate?', fromMe: true },
+    { id: 7, text: 'Both! 😋', fromMe: false },
+  ]);
+
   // Preload icon fonts
   const [fontsLoaded] = useFonts({
     ...Ionicons.font,
-    ...Feather.font,
   });
 
-  // Function to scroll to bottom of chat
+  // Scroll to bottom helper
   const scrollToBottom = (animated = true) => {
     setTimeout(() => {
       if (scrollViewRef.current) {
@@ -33,9 +60,14 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
     }, 100);
   };
 
+  // Scroll to bottom when a new message is sent
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages.length]);
+
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f6fb' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
         <ActivityIndicator size="large" color="#7c5dfa" />
       </View>
     );
@@ -43,166 +75,240 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
 
   // Use props or fallback to default user
   const user = {
-    name: name || 'Chris Hemsworth',
-    avatar: avatar || 'https://randomuser.me/api/portraits/men/50.jpg',
+    name: name || 'Hasima Medvedova',
+    avatar: avatar || 'https://randomuser.me/api/portraits/women/32.jpg',
   };
 
-  const messages = [
-    { id: 1, text: 'Hey! How are you?', fromMe: false },
-    { id: 2, text: "I'm good, thanks! How about you?", fromMe: true },
-    { id: 3, text: 'Doing great! Want to grab some donuts?', fromMe: false },
-    { id: 4, text: 'Absolutely! 🍩', fromMe: true },
-  ];
+  // Send message handler
+  const sendMessage = () => {
+    if (input.trim()) {
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, text: input, fromMe: true },
+      ]);
+      setInput('');
+    }
+  };
 
-  const galleryImages = [
-    { uri: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80' },
-    { uri: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80' },
-    { uri: 'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?auto=format&fit=crop&w=400&q=80' },
-  ];
+  // Top padding for Android status bar
+  const androidTop = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
 
   // Container style to center content on web
+  let containerWidth: number = width;
+  if (isWeb) {
+    containerWidth = Math.min(width, maxContainerWidth);
+  }
   const containerStyle = {
     flex: 1,
-    width: isWeb ? (width > maxContainerWidth ? maxContainerWidth : width) : '100%',
+    width: containerWidth,
     alignSelf: isWeb ? 'center' as const : undefined,
+    backgroundColor: '#fff',
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={{ flex: 1, backgroundColor: '#f7f6fb' }}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity 
-              style={styles.backButton} 
-              onPress={() => router.back()}
-            >
-              <Ionicons name="chevron-back-outline" size={24} color="#007AFF" />
-            </TouchableOpacity>
-            <Image source={{ uri: user.avatar }} style={styles.avatar} />
-            <View style={{ marginLeft: 12 }}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#fff', paddingTop: androidTop }]}>  
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? HEADER_HEIGHT : 0}
+      >
+        <View style={containerStyle}>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+              >
+                <Ionicons name="chevron-back" size={28} color="#007AFF" />
+              </TouchableOpacity>
+              <Image source={{ uri: user.avatar }} style={styles.avatar} />
               <Text style={styles.userName}>{user.name}</Text>
             </View>
+            <View style={styles.headerRight}>
+              <TouchableOpacity style={styles.headerButton}>
+                <Ionicons name="videocam" size={24} color="#000" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.headerButton}>
+                <Ionicons name="call" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Ionicons name="videocam" size={22} color="#555" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-              <Ionicons name="call" size={22} color="#555" />
-            </TouchableOpacity>
+
+          {/* Main content area */}
+          <View style={styles.contentArea}>
+            <ScrollView
+              ref={scrollViewRef}
+              style={styles.scrollView}
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+            >
+              {messages.map((msg) => (
+                <View
+                  key={msg.id}
+                  style={[
+                    styles.messageBubble,
+                    msg.fromMe ? styles.myMessage : styles.theirMessage,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.messageText,
+                      msg.fromMe ? styles.myMessageText : {},
+                    ]}
+                  >
+                    {msg.text}
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Input area - fixed at bottom, no extra bottom padding */}
+          <View style={styles.inputArea}>
+            <View style={styles.inputContainer}>
+              <TextInput
+                ref={inputRef}
+                style={styles.input}
+                placeholder="Type your message..."
+                placeholderTextColor="#999"
+                value={input}
+                onChangeText={setInput}
+                multiline={false}
+                returnKeyType="send"
+                blurOnSubmit={false}
+                onSubmitEditing={sendMessage}
+              />
+              <TouchableOpacity
+                style={styles.sendButton}
+                onPress={sendMessage}
+                disabled={!input.trim()}
+              >
+                <Ionicons 
+                  name="send" 
+                  size={20} 
+                  color="#fff" 
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-        
-        {/* Main content area */}
-        <ScrollView 
-          ref={scrollViewRef}
-          style={{ flex: 1 }}
-          contentContainerStyle={{ 
-            paddingVertical: 16, 
-            paddingHorizontal: 8,
-            paddingBottom: 16
-          }}
-          keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() => scrollToBottom(false)}
-        >
-          {messages.map((msg) => (
-            <View
-              key={msg.id}
-              style={[
-                styles.messageBubble,
-                msg.fromMe ? styles.myMessage : styles.theirMessage,
-              ]}
-            >
-              <Text style={[
-                styles.messageText, 
-                msg.fromMe ? styles.myMessageText : {}
-              ]}>
-                {msg.text}
-              </Text>
-            </View>
-          ))}
-          
-          {/* Gallery */}
-          <View style={styles.galleryRow}>
-            {galleryImages.map((img, idx) => (
-              <Image key={idx} source={{ uri: img.uri }} style={styles.galleryImage} />
-            ))}
-          </View>
-        </ScrollView>
-      </View>
-    </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? 48 : 16,
-    paddingBottom: 12,
-    paddingHorizontal: 18,
+    alignItems: 'center',
+    height: HEADER_HEIGHT,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    elevation: 2,
-    zIndex: 2,
+    borderBottomColor: '#e0e0e0',
+    paddingHorizontal: 16,
+    paddingTop: 0,
+    zIndex: 10,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   backButton: {
+    padding: 4,
     marginRight: 8,
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#ddd',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 12,
   },
   userName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#222',
+    color: '#000',
   },
-  iconButton: {
-    backgroundColor: '#edeaf3',
-    borderRadius: 16,
-    padding: 8,
-    marginLeft: 8,
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerButton: {
+    marginLeft: 16,
+  },
+  contentArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   messageBubble: {
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginVertical: 4,
     maxWidth: '75%',
-    borderRadius: 18,
-    padding: 12,
-    marginBottom: 10,
   },
   myMessage: {
-    backgroundColor: '#7c5dfa',
+    backgroundColor: '#7671ff',
     alignSelf: 'flex-end',
-    borderBottomRightRadius: 6,
+    marginLeft: 40,
   },
   theirMessage: {
-    backgroundColor: '#fff',
+    backgroundColor: '#e9e9eb',
     alignSelf: 'flex-start',
-    borderBottomLeftRadius: 6,
-    borderWidth: 1,
-    borderColor: '#edeaf3',
+    marginRight: 40,
   },
   messageText: {
-    fontSize: 15,
-    color: '#222',
+    fontSize: 16,
+    color: '#000',
   },
   myMessageText: {
     color: '#fff',
   },
-  galleryRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginVertical: 12,
+  inputArea: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    // No extra bottom padding here
   },
-  galleryImage: {
-    width: 72,
-    height: 72,
-    borderRadius: 12,
-    marginRight: 8,
-  }
-}); 
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 24,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#000',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    maxHeight: 100,
+    backgroundColor: 'transparent',
+  },
+  sendButton: {
+    backgroundColor: '#7671ff',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+});
