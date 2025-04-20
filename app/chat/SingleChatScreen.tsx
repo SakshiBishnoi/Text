@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView, Platform, useWindowDimensions, ActivityIndicator } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, Image, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, ScrollView, Platform, useWindowDimensions, ActivityIndicator, Keyboard } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
-import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
+import { useRouter } from 'expo-router';
 
 interface SingleChatScreenProps {
   id?: string;
@@ -12,20 +12,26 @@ interface SingleChatScreenProps {
 
 // Accept props for id, name, avatar
 export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenProps) {
-  const [input, setInput] = useState('');
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const maxContainerWidth = 600;
-  const containerStyle = {
-    ...styles.container,
-    ...(isWeb ? { maxWidth: maxContainerWidth, alignSelf: 'center' as const, width } : { width }),
-  };
-
+  const router = useRouter();
+  const scrollViewRef = useRef<ScrollView>(null);
+  
   // Preload icon fonts
   const [fontsLoaded] = useFonts({
     ...Ionicons.font,
     ...Feather.font,
   });
+
+  // Function to scroll to bottom of chat
+  const scrollToBottom = (animated = true) => {
+    setTimeout(() => {
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollToEnd({ animated });
+      }
+    }, 100);
+  };
 
   if (!fontsLoaded) {
     return (
@@ -54,72 +60,87 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
     { uri: 'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?auto=format&fit=crop&w=400&q=80' },
   ];
 
+  // Container style to center content on web
+  const containerStyle = {
+    flex: 1,
+    width: isWeb ? (width > maxContainerWidth ? maxContainerWidth : width) : '100%',
+    alignSelf: isWeb ? 'center' as const : undefined,
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#f7f6fb' }}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image source={{ uri: user.avatar }} style={styles.avatar} />
-          <View style={{ marginLeft: 12 }}>
-            <Text style={styles.userName}>{user.name}</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={{ flex: 1, backgroundColor: '#f7f6fb' }}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity 
+              style={styles.backButton} 
+              onPress={() => router.back()}
+            >
+              <Ionicons name="chevron-back-outline" size={24} color="#007AFF" />
+            </TouchableOpacity>
+            <Image source={{ uri: user.avatar }} style={styles.avatar} />
+            <View style={{ marginLeft: 12 }}>
+              <Text style={styles.userName}>{user.name}</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Ionicons name="videocam" size={22} color="#555" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Ionicons name="call" size={22} color="#555" />
+            </TouchableOpacity>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="videocam" size={22} color="#555" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="call" size={22} color="#555" />
-          </TouchableOpacity>
-        </View>
-      </View>
-      {/* Messages */}
-      <ScrollView style={containerStyle} contentContainerStyle={{ paddingVertical: 16, paddingHorizontal: 8 }}>
-        {messages.map((msg) => (
-          <View
-            key={msg.id}
-            style={[
-              styles.messageBubble,
-              msg.fromMe ? styles.myMessage : styles.theirMessage,
-            ]}
-          >
-            <Text style={styles.messageText}>{msg.text}</Text>
-          </View>
-        ))}
-        {/* Gallery */}
-        <View style={styles.galleryRow}>
-          {galleryImages.map((img, idx) => (
-            <Image key={idx} source={{ uri: img.uri }} style={styles.galleryImage} />
+        
+        {/* Main content area */}
+        <ScrollView 
+          ref={scrollViewRef}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ 
+            paddingVertical: 16, 
+            paddingHorizontal: 8,
+            paddingBottom: 16
+          }}
+          keyboardShouldPersistTaps="handled"
+          onContentSizeChange={() => scrollToBottom(false)}
+        >
+          {messages.map((msg) => (
+            <View
+              key={msg.id}
+              style={[
+                styles.messageBubble,
+                msg.fromMe ? styles.myMessage : styles.theirMessage,
+              ]}
+            >
+              <Text style={[
+                styles.messageText, 
+                msg.fromMe ? styles.myMessageText : {}
+              ]}>
+                {msg.text}
+              </Text>
+            </View>
           ))}
-        </View>
-      </ScrollView>
-      {/* Message Input */}
-      <View style={styles.inputBar}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type your message..."
-          placeholderTextColor="#aaa"
-          value={input}
-          onChangeText={setInput}
-        />
-        <TouchableOpacity style={styles.sendButton}>
-          <Feather name="send" size={20} color="#fff" />
-        </TouchableOpacity>
+          
+          {/* Gallery */}
+          <View style={styles.galleryRow}>
+            {galleryImages.map((img, idx) => (
+              <Image key={idx} source={{ uri: img.uri }} style={styles.galleryImage} />
+            ))}
+          </View>
+        </ScrollView>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 48,
+    paddingTop: Platform.OS === 'ios' ? 48 : 16,
     paddingBottom: 12,
     paddingHorizontal: 18,
     backgroundColor: '#fff',
@@ -127,6 +148,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f0f0f0',
     elevation: 2,
     zIndex: 2,
+  },
+  backButton: {
+    marginRight: 8,
   },
   avatar: {
     width: 44,
@@ -164,8 +188,11 @@ const styles = StyleSheet.create({
     borderColor: '#edeaf3',
   },
   messageText: {
-    color: '#222',
     fontSize: 15,
+    color: '#222',
+  },
+  myMessageText: {
+    color: '#fff',
   },
   galleryRow: {
     flexDirection: 'row',
@@ -177,29 +204,5 @@ const styles = StyleSheet.create({
     height: 72,
     borderRadius: 12,
     marginRight: 8,
-  },
-  inputBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#edeaf3',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 40,
-    fontSize: 16,
-    color: '#222',
-  },
-  sendButton: {
-    backgroundColor: '#7c5dfa',
-    borderRadius: 16,
-    padding: 10,
-    marginLeft: 8,
-  },
+  }
 }); 

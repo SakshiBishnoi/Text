@@ -51,6 +51,7 @@ export default function RootLayout() {
         <Stack.Screen name="auth/index" options={{ title: 'Auth', headerShown: false }} />
         <Stack.Screen name="chat/index" options={{ title: 'Chats', headerShown: false }} />
         <Stack.Screen name="chat/detail" options={{ title: 'Chat Detail', headerShown: false }} />
+        <Stack.Screen name="chat/single/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
