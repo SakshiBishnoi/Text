@@ -339,9 +339,9 @@ const styles = StyleSheet.create({
   allChatRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 8,
-    marginBottom: 12,
+    marginBottom: 8,
     minWidth: 0,
   },
   allChatAvatar: {

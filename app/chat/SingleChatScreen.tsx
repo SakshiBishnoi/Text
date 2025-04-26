@@ -209,8 +209,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: HEADER_HEIGHT,
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
     paddingHorizontal: 16,
     paddingTop: 0,
     zIndex: 10,
@@ -281,9 +279,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    // No extra bottom padding here
   },
   inputContainer: {
     flexDirection: 'row',

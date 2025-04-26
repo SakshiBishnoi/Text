@@ -26,6 +26,7 @@ interface SettingsItemProps {
   onPress?: (event: GestureResponderEvent) => void;
   isDestructive?: boolean;
   detail?: string;
+  isLogoutItem?: boolean;
 }
 
 // Simple reusable component for settings items
@@ -38,20 +39,27 @@ const SettingsItem: React.FC<SettingsItemProps> = ({
   onSwitchChange, 
   onPress, 
   isDestructive = false, 
-  detail
+  detail,
+  isLogoutItem = false,
 }) => {
   const IconComponent = iconType === 'MaterialCommunityIcons' ? MaterialCommunityIcons : Ionicons;
   return (
     <TouchableOpacity 
       onPress={onPress} 
-      style={styles.itemContainer}
+      style={[
+        styles.itemContainer, 
+        isLogoutItem && styles.logoutItemStyle,
+      ]}
       disabled={!onPress && !isSwitch}
       activeOpacity={0.7}
     >
       {iconName && (
-        <View style={styles.iconContainer}>
-          <IconComponent name={iconName as any} size={20} color={isDestructive ? '#ff3b30' : '#7c5dfa'} />
-        </View>
+        <IconComponent 
+          name={iconName as any} 
+          size={22} 
+          color={isDestructive ? '#ff3b30' : '#7c5dfa'} 
+          style={styles.itemIcon}
+        />
       )}
       <Text style={[styles.itemLabel, isDestructive && styles.destructiveText]}>{label}</Text>
       <View style={styles.itemRightContent}>
@@ -146,7 +154,7 @@ export default function SettingsScreen() {
         />
         <SettingsItem 
           label="Vibrate" 
-          iconName="radio-outline"
+          iconName="vibrate"
           iconType='MaterialCommunityIcons'
           isSwitch 
           switchValue={vibrateEnabled} 
@@ -164,7 +172,7 @@ export default function SettingsScreen() {
 
         <SectionHeader title="Data & Storage" />
         <SettingsItem label="Manage Storage" iconName="folder-outline" onPress={() => navigateTo('/settings/storage')} />
-        <SettingsItem label="Clear Cache" iconName="trash-outline" onPress={handleClearCache} isDestructive/>
+        <SettingsItem label="Clear Cache" iconName="trash-outline" onPress={handleClearCache} isDestructive />
         
         <SectionHeader title="Privacy & Security" />
         <SettingsItem label="Blocked Users" iconName="hand-left-outline" onPress={() => navigateTo('/settings/blocked')} />
@@ -180,7 +188,7 @@ export default function SettingsScreen() {
         <SettingsItem label="Terms of Service" iconName="document-text-outline" onPress={() => navigateTo('/settings/terms')} />
         <SettingsItem label="Privacy Policy" iconName="shield-checkmark-outline" onPress={() => navigateTo('/settings/privacy')} />
 
-        <SettingsItem label="Logout" onPress={handleLogout} isDestructive />
+        <SettingsItem label="Logout" onPress={handleLogout} isDestructive isLogoutItem />
 
       </ScrollView>
     </SafeAreaView>
@@ -210,22 +218,20 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    marginBottom: 10,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#e0e0e0',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 8,
   },
-  iconContainer: {
-     width: 32,
-     height: 32,
-     borderRadius: 8,
-     backgroundColor: '#edeaf3',
-     justifyContent: 'center',
-     alignItems: 'center',
-     marginRight: 14,
+  logoutItemStyle: {
+    marginTop: 30,
+    marginBottom: 10,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 0,
+  },
+  itemIcon: {
+    marginRight: 15,
+    width: 24,
+    textAlign: 'center',
   },
   itemLabel: {
     flex: 1,
