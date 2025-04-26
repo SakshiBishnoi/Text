@@ -345,6 +345,11 @@ const styles = StyleSheet.create({
     padding: 8,
     zIndex: 2,
   },
+  buttonContainer: {
+    marginTop: 40,
+    width: '100%',
+    alignItems: 'center',
+  },
   button: {
     backgroundColor: PURPLE,
     borderRadius: 12,
@@ -352,11 +357,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 8,
-    shadowColor: PURPLE,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 2,
   },
   buttonDisabled: {
     opacity: 0.7,

@@ -124,11 +124,11 @@ export default function ChatListScreen() {
         >
           <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
             <View style={styles.modalMenu}>
-              <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); Alert.alert('Settings', 'Settings option pressed!'); }}>
+              <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); router.push('/settings' as any); }}>
                 <Feather name="settings" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
                 <Text style={styles.menuText}>Settings</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); Alert.alert('Profile', 'Profile option pressed!'); }}>
+              <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); router.push('/profile' as any); }}>
                 <MaterialCommunityIcons name="account" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
                 <Text style={styles.menuText}>Profile</Text>
               </TouchableOpacity>
@@ -355,11 +355,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 12,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#e0e0e0',
     minWidth: 0,
   },
   allChatAvatar: {
@@ -400,11 +397,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginBottom: 40,
     width: 260,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#c6c6c8',
   },
   menuItem: {
     flexDirection: 'row',

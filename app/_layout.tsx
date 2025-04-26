@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -45,16 +46,20 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="auth/index" options={{ title: 'Auth', headerShown: false }} />
-        <Stack.Screen name="chat/index" options={{ title: 'Chats', headerShown: false }} />
-        <Stack.Screen name="chat/detail" options={{ title: 'Chat Detail', headerShown: false }} />
-        <Stack.Screen name="chat/single/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="auth/index" options={{ title: 'Auth', headerShown: false }} />
+          <Stack.Screen name="chat/index" options={{ title: 'Chats', headerShown: false }} />
+          <Stack.Screen name="chat/detail" options={{ title: 'Chat Detail', headerShown: false }} />
+          <Stack.Screen name="chat/single/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="profile/index" options={{ headerShown: false }} />
+          <Stack.Screen name="settings/index" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
