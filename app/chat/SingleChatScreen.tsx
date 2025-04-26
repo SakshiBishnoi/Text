@@ -106,13 +106,13 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#fff', paddingTop: androidTop }]}>  
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#fff', paddingTop: androidTop }]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? HEADER_HEIGHT : 0}
       >
-        <View style={containerStyle}>
+        <View style={[containerStyle, { flex: 1 }]}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
