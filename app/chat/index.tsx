@@ -77,10 +77,8 @@ export default function ChatListScreen() {
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const maxContainerWidth = 800;
-  const containerStyle = {
-    ...styles.container,
-    ...(isWeb ? { maxWidth: maxContainerWidth, alignSelf: 'center' as const, width } : { width }),
-  };
+  const containerDynamicStyle = isWeb ? { maxWidth: maxContainerWidth, alignSelf: 'center' as const, width } : { width }; 
+  
   const [modalVisible, setModalVisible] = useState(false);
   const [fontsLoaded] = useFonts({
     Lobster_400Regular,
@@ -106,122 +104,112 @@ export default function ChatListScreen() {
   const gap = 16;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#f7f6fb' }} contentContainerStyle={{ alignItems: 'center', paddingBottom: 32 }}>
-      <View style={containerStyle}>
-        {/* Header with Settings Icon */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <Text style={styles.lobsterHeader}>Text.</Text>
-          <TouchableOpacity style={{ backgroundColor: '#edeaf3', borderRadius: 16, padding: 8 }} onPress={() => setModalVisible(true)}>
-            <Feather name="settings" size={22} color="#222" />
-          </TouchableOpacity>
-        </View>
-        {/* Settings Modal */}
-        <Modal
-          visible={modalVisible}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
-            <View style={styles.modalMenu}>
-              <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); router.push('/settings' as any); }}>
-                <Feather name="settings" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
-                <Text style={styles.menuText}>Settings</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); router.push('/profile' as any); }}>
-                <MaterialCommunityIcons name="account" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
-                <Text style={styles.menuText}>Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                <Feather name="log-out" size={20} color="#e74c3c" style={{ marginRight: 12 }} />
-                <Text style={[styles.menuText, { color: '#e74c3c' }]}>Log Out</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </Modal>
-        {/* Avatars Row - now horizontally scrollable and as buttons */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ marginBottom: 16, marginLeft: -1 }}
-          contentContainerStyle={{ paddingRight: 1, paddingLeft: 1, alignItems: 'center' }}
-        >
-          {users.map((user, idx) => (
-            <TouchableOpacity
-              key={user.id}
-              style={styles.avatarButton}
-              activeOpacity={0.7}
-              onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: user.id, name: user.name, avatar: user.avatar } })}
-            >
-              <View style={styles.avatarWrapper}>
-                {user.avatar && user.name !== '+15' ? (
-                  <Image source={{ uri: user.avatar }} style={styles.avatar} />
-                ) : (
-                  <View style={[styles.avatar, styles.avatarPlaceholder, { backgroundColor: '#222', justifyContent: 'center', alignItems: 'center' }]}> 
-                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{user.name}</Text>
-                  </View>
-                )}
-                {/* Only show online dot for real users, not '+15' */}
-                {user.online && user.avatar && user.name !== '+15' && (
-                  <View style={styles.onlineDot} />
-                )}
-              </View>
-              <Text style={styles.avatarLabel}>{user.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-        {/* Search Bar */}
-        <View style={styles.searchBarWrapper}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#edeaf3', borderRadius: 16, paddingHorizontal: 12 }}>
-            <Feather name="search" size={18} color="#aaa" style={{ marginRight: 6 }} />
-            <TextInput style={[styles.searchBar, { flex: 1, backgroundColor: 'transparent', paddingHorizontal: 0 }]} placeholder="Search or start of message" placeholderTextColor="#aaa" />
-            <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
-              <Feather name="mic" size={18} color="#aaa" style={{ marginLeft: 6 }} />
+    <View style={{ flex: 1, backgroundColor: '#f7f6fb' }}> 
+      <View style={[styles.container, containerDynamicStyle]}>
+        <View> 
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <Text style={styles.lobsterHeader}>Text.</Text>
+            <TouchableOpacity style={{ backgroundColor: '#edeaf3', borderRadius: 16, padding: 8 }} onPress={() => setModalVisible(true)}>
+              <Feather name="settings" size={22} color="#222" />
             </TouchableOpacity>
           </View>
+          <Modal
+            visible={modalVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
+              <View style={styles.modalMenu}>
+                <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); router.push('/settings' as any); }}>
+                  <Feather name="settings" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
+                  <Text style={styles.menuText}>Settings</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); router.push('/profile' as any); }}>
+                  <MaterialCommunityIcons name="account" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
+                  <Text style={styles.menuText}>Profile</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                  <Feather name="log-out" size={20} color="#e74c3c" style={{ marginRight: 12 }} />
+                  <Text style={[styles.menuText, { color: '#e74c3c' }]}>Log Out</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </Modal>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{ marginBottom: 16, marginLeft: -1 }}
+            contentContainerStyle={{ paddingRight: 1, paddingLeft: 1, alignItems: 'center' }}
+          >
+            {users.map((user, idx) => (
+              <TouchableOpacity
+                key={user.id}
+                style={styles.avatarButton}
+                activeOpacity={0.7}
+                onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: user.id, name: user.name, avatar: user.avatar } })}
+              >
+                <View style={styles.avatarWrapper}>
+                  {user.avatar && user.name !== '+15' ? (
+                    <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                  ) : (
+                    <View style={[styles.avatar, styles.avatarPlaceholder, { backgroundColor: '#222', justifyContent: 'center', alignItems: 'center' }]}> 
+                      <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{user.name}</Text>
+                    </View>
+                  )}
+                  {user.online && user.avatar && user.name !== '+15' && (
+                    <View style={styles.onlineDot} />
+                  )}
+                </View>
+                <Text style={styles.avatarLabel}>{user.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <View style={styles.searchBarWrapper}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#edeaf3', borderRadius: 16, paddingHorizontal: 12 }}>
+              <Feather name="search" size={18} color="#aaa" style={{ marginRight: 6 }} />
+              <TextInput style={[styles.searchBar, { flex: 1, backgroundColor: 'transparent', paddingHorizontal: 0 }]} placeholder="Search or start of message" placeholderTextColor="#aaa" />
+              <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
+                <Feather name="mic" size={18} color="#aaa" style={{ marginLeft: 6 }} />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-        {/* Pinned Chats Section Title with Pin Icon */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <MaterialCommunityIcons name="pin" size={18} color="#7c5dfa" style={{ marginRight: 6 }} />
-          <Text style={styles.sectionTitle}>Pinned Chats</Text>
-        </View>
-        {/* Pinned Chats (add animation wrapper here) */}
-        {/* TODO: Wrap with Animatable.View for fadeIn/slideIn animation */}
-        <FlatList
-          data={pinnedChats}
-          keyExtractor={item => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 8, alignItems: 'center' }}
-          ItemSeparatorComponent={() => <View style={{ width: gap }} />}
-          renderItem={({ item: chat }) => (
-            <Pressable
-              style={[
-                styles.pinnedChat,
-                {
-                  backgroundColor: chat.bg,
-                  width: cardWidth,
-                  marginVertical: 8,
-                  // No shadow or elevation
-                },
-              ]}
-              onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } })}
-            >
-              <Image source={{ uri: chat.avatar }} style={styles.pinnedAvatar} />
-              <Text style={styles.pinnedName}>{chat.name}</Text>
-              <Text style={styles.pinnedMsg} numberOfLines={1}>{chat.lastMessage}</Text>
-            </Pressable>
-          )}
-          getItemLayout={(_, index) => ({ length: cardWidth + gap, offset: (cardWidth + gap) * index, index })}
-        />
-        {/* All Chats Section Title with Chat Icon */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <MaterialCommunityIcons name="chat" size={18} color="#7c5dfa" style={{ marginRight: 6 }} />
-          <Text style={styles.sectionTitle}>All Chats</Text>
-        </View>
-        {/* All Chats (add animation wrapper here) */}
-        {/* TODO: Wrap with Animatable.View for fadeIn/slideIn animation */}
-        <View>
+        <ScrollView style={{ flex: 1, width: '100%', marginTop: 16 }}> 
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <MaterialCommunityIcons name="pin" size={18} color="#7c5dfa" style={{ marginRight: 6 }} />
+            <Text style={styles.sectionTitle}>Pinned Chats</Text>
+          </View>
+          <FlatList
+            data={pinnedChats}
+            keyExtractor={item => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 8, alignItems: 'center', paddingBottom: 8 }}
+            ItemSeparatorComponent={() => <View style={{ width: gap }} />}
+            renderItem={({ item: chat }) => (
+              <Pressable
+                style={[
+                  styles.pinnedChat,
+                  {
+                    backgroundColor: chat.bg,
+                    width: cardWidth,
+                    marginVertical: 8, 
+                  },
+                ]}
+                onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } })}
+              >
+                <Image source={{ uri: chat.avatar }} style={styles.pinnedAvatar} />
+                <Text style={styles.pinnedName}>{chat.name}</Text>
+                <Text style={styles.pinnedMsg} numberOfLines={1}>{chat.lastMessage}</Text>
+              </Pressable>
+            )}
+            getItemLayout={(_, index) => ({ length: cardWidth + gap, offset: (cardWidth + gap) * index, index })}
+          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 16 }}>
+            <MaterialCommunityIcons name="chat" size={18} color="#7c5dfa" style={{ marginRight: 6 }} />
+            <Text style={styles.sectionTitle}>All Chats</Text>
+          </View>
           {allChats.map((chat, idx) => (
             <TouchableOpacity key={chat.id} style={styles.allChatRow} onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } })}>
               {chat.avatar ? (
@@ -236,7 +224,6 @@ export default function ChatListScreen() {
                 </Text>
               </View>
               <Text style={styles.allChatTime}>{chat.time}</Text>
-              {/* Unread badge for the first chat */}
               {idx === 0 && (
                 <View style={{ backgroundColor: '#7c5dfa', borderRadius: 8, minWidth: 16, minHeight: 16, alignItems: 'center', justifyContent: 'center', marginLeft: 8, paddingHorizontal: 4 }}>
                   <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>1</Text>
@@ -244,9 +231,9 @@ export default function ChatListScreen() {
               )}
             </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -255,8 +242,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f7f6fb',
     paddingHorizontal: 16,
-    paddingTop: 62,
+    paddingTop: Platform.OS === 'android' ? 25 : 62,
     width: '100%',
+    flexDirection: 'column',
   },
   lobsterHeader: {
     fontSize: 32,
@@ -351,12 +339,9 @@ const styles = StyleSheet.create({
   allChatRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 12,
-    marginBottom: 10,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#e0e0e0',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginBottom: 12,
     minWidth: 0,
   },
   allChatAvatar: {
