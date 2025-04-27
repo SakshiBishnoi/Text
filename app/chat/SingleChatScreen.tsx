@@ -16,7 +16,7 @@ import {
   Keyboard,
   Dimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -62,7 +62,7 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
     { id: 6, text: 'Glazed or chocolate?', fromMe: true },
     { id: 7, text: 'Both! 😋', fromMe: false },
   ]);
-
+  
   // Preload icon fonts
   const [fontsLoaded] = useFonts({
     ...Ionicons.font,
@@ -145,10 +145,22 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
               <Text style={styles.userName}>{user.name}</Text>
             </View>
             <View style={styles.headerRight}>
-              <TouchableOpacity style={styles.headerButton}>
+              <TouchableOpacity 
+                style={styles.headerButton}
+                onPress={() => {
+                  triggerHaptic();
+                  // Add video call action here
+                }}
+              >
                 <Ionicons name="videocam" size={24} color="#000" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.headerButton}>
+              <TouchableOpacity 
+                style={styles.headerButton}
+                onPress={() => {
+                  triggerHaptic();
+                  // Add audio call action here
+                }}
+              >
                 <Ionicons name="call" size={24} color="#000" />
               </TouchableOpacity>
             </View>
@@ -183,32 +195,127 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
             </ScrollView>
           </View>
 
-          {/* Input area - fixed at bottom, no extra bottom padding */}
+          {/* Enhanced Chat Input Interface */}
           <View style={styles.inputArea}>
+            {/* Main Input Row */}
             <View style={styles.inputContainer}>
+              {/* Text Input */}
               <TextInput
                 ref={inputRef}
                 style={styles.input}
-                placeholder="Type your message..."
+                placeholder="Message..."
                 placeholderTextColor="#999"
                 value={input}
                 onChangeText={setInput}
-                multiline={false}
-                returnKeyType="send"
+                multiline
+                returnKeyType="default"
                 blurOnSubmit={false}
-                onSubmitEditing={sendMessage}
               />
+              {/* Send/Audio Wave Button */}
               <TouchableOpacity
                 style={styles.sendButton}
-                onPress={sendMessage}
-                disabled={!input.trim()}
+                onPress={input.trim() ? sendMessage : () => triggerHaptic('light')}
               >
-                <Ionicons 
-                  name="send" 
-                  size={20} 
-                  color="#fff" 
-                />
+                {input.trim() ? (
+                  <MaterialIcons name="send" size={22} color="#5B9EF8" />
+                ) : (
+                  <MaterialIcons name="graphic-eq" size={24} color="#5B9EF8" />
+                )}
               </TouchableOpacity>
+            </View>
+
+            {/* Quick action buttons */}
+            <View style={styles.quickActionButtons}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionScrollContent}>
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={() => {
+                    triggerHaptic();
+                    // Handle Photo action
+                  }}
+                >
+                  <MaterialIcons name="image" size={18} color="#555" style={styles.quickActionIcon} />
+                  <Text style={styles.quickActionText}>Photo</Text> 
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={() => {
+                    triggerHaptic();
+                    // Handle Document action
+                  }}
+                >
+                  <MaterialIcons name="insert-drive-file" size={18} color="#555" style={styles.quickActionIcon} />
+                  <Text style={styles.quickActionText}>Document</Text> 
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={() => {
+                    triggerHaptic();
+                    // Handle Camera action
+                  }}
+                >
+                  <MaterialIcons name="camera-alt" size={18} color="#555" style={styles.quickActionIcon} />
+                  <Text style={styles.quickActionText}>Camera</Text> 
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={() => {
+                    triggerHaptic();
+                    // Handle Location action
+                  }}
+                >
+                  <MaterialIcons name="location-on" size={18} color="#555" style={styles.quickActionIcon} />
+                  <Text style={styles.quickActionText}>Location</Text> 
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={() => {
+                    triggerHaptic();
+                    // Handle Contacts action
+                  }}
+                >
+                  <MaterialIcons name="person" size={18} color="#555" style={styles.quickActionIcon} />
+                  <Text style={styles.quickActionText}>Contacts</Text> 
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={() => {
+                    triggerHaptic();
+                    // Handle Poll action
+                  }}
+                >
+                  <MaterialIcons name="poll" size={18} color="#555" style={styles.quickActionIcon} />
+                  <Text style={styles.quickActionText}>Poll</Text> 
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={() => {
+                    triggerHaptic();
+                    // Handle Events action
+                  }}
+                >
+                  <MaterialIcons name="event" size={18} color="#555" style={styles.quickActionIcon} />
+                  <Text style={styles.quickActionText}>Events</Text> 
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.quickActionButton}
+                  onPress={() => {
+                    triggerHaptic();
+                    // Handle Calendar Invite action
+                  }}
+                >
+                  <MaterialIcons name="calendar-today" size={18} color="#555" style={styles.quickActionIcon} />
+                  <Text style={styles.quickActionText}>Calendar Invite</Text> 
+                </TouchableOpacity>
+
+              </ScrollView>
             </View>
           </View>
         </View>
@@ -297,14 +404,15 @@ const styles = StyleSheet.create({
   inputArea: {
     backgroundColor: '#fff',
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingBottom: 16,
+    paddingTop: 6,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F0F0F0',
     borderRadius: 24,
-    paddingVertical: 4,
+    paddingVertical: 6,
     paddingHorizontal: 12,
   },
   input: {
@@ -315,14 +423,46 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     maxHeight: 100,
     backgroundColor: 'transparent',
+    marginRight: 8,
   },
   sendButton: {
-    backgroundColor: '#7671ff',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+  },
+  quickActionButtons: {
+    marginTop: 10,
+  },
+  quickActionScrollContent: {
+    paddingLeft: 4,
+    paddingRight: 12,
+    alignItems: 'center',
+  },
+  quickActionButton: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginRight: 8,
+    height: 36,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  quickActionIconButton: {
+    paddingHorizontal: 8,
+    width: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quickActionIcon: {
+    marginRight: 6,
+  },
+  quickActionText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
   },
 });
