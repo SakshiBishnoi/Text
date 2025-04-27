@@ -242,17 +242,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f7f6fb',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'android' ? 25 : 62,
+    paddingTop: Platform.OS === 'android' ? 40 : 62,
     width: '100%',
     flexDirection: 'column',
   },
   lobsterHeader: {
-    fontSize: 32,
+    fontSize: 33,
     fontFamily: 'Lobster_400Regular',
-    fontWeight: '400',
-    fontStyle: 'normal',
-    marginBottom: 16,
     color: '#222',
+    letterSpacing: -0.5,
   },
   avatarsRow: {
     // removed, replaced by horizontal ScrollView
