@@ -224,99 +224,137 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
               </TouchableOpacity>
             </View>
 
-            {/* Quick action buttons */}
-            <View style={styles.quickActionButtons}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionScrollContent}>
+            {/* Quick action buttons - Conditional Layout */}
+            {isWeb ? (
+              // Web Layout: Wrapping View
+              <View style={styles.quickActionButtonsWebContainer}>
                 <TouchableOpacity 
-                  style={styles.quickActionButton}
-                  onPress={() => {
-                    triggerHaptic();
-                    // Handle Photo action
-                  }}
+                  style={[styles.quickActionButton, styles.quickActionButtonWeb]}
+                  onPress={() => { triggerHaptic(); /* Handle Photo action */ }}
                 >
                   <MaterialIcons name="image" size={18} color="#555" style={styles.quickActionIcon} />
                   <Text style={styles.quickActionText}>Photo</Text> 
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={styles.quickActionButton}
-                  onPress={() => {
-                    triggerHaptic();
-                    // Handle Document action
-                  }}
+                  style={[styles.quickActionButton, styles.quickActionButtonWeb]}
+                  onPress={() => { triggerHaptic(); /* Handle Document action */ }}
                 >
                   <MaterialIcons name="insert-drive-file" size={18} color="#555" style={styles.quickActionIcon} />
                   <Text style={styles.quickActionText}>Document</Text> 
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={styles.quickActionButton}
-                  onPress={() => {
-                    triggerHaptic();
-                    // Handle Camera action
-                  }}
+                  style={[styles.quickActionButton, styles.quickActionButtonWeb]}
+                  onPress={() => { triggerHaptic(); /* Handle Camera action */ }}
                 >
                   <MaterialIcons name="camera-alt" size={18} color="#555" style={styles.quickActionIcon} />
                   <Text style={styles.quickActionText}>Camera</Text> 
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={styles.quickActionButton}
-                  onPress={() => {
-                    triggerHaptic();
-                    // Handle Location action
-                  }}
+                  style={[styles.quickActionButton, styles.quickActionButtonWeb]}
+                  onPress={() => { triggerHaptic(); /* Handle Location action */ }}
                 >
                   <MaterialIcons name="location-on" size={18} color="#555" style={styles.quickActionIcon} />
                   <Text style={styles.quickActionText}>Location</Text> 
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={styles.quickActionButton}
-                  onPress={() => {
-                    triggerHaptic();
-                    // Handle Contacts action
-                  }}
+                  style={[styles.quickActionButton, styles.quickActionButtonWeb]}
+                  onPress={() => { triggerHaptic(); /* Handle Contacts action */ }}
                 >
                   <MaterialIcons name="person" size={18} color="#555" style={styles.quickActionIcon} />
                   <Text style={styles.quickActionText}>Contacts</Text> 
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={styles.quickActionButton}
-                  onPress={() => {
-                    triggerHaptic();
-                    // Handle Poll action
-                  }}
+                  style={[styles.quickActionButton, styles.quickActionButtonWeb]}
+                  onPress={() => { triggerHaptic(); /* Handle Poll action */ }}
                 >
                   <MaterialIcons name="poll" size={18} color="#555" style={styles.quickActionIcon} />
                   <Text style={styles.quickActionText}>Poll</Text> 
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={styles.quickActionButton}
-                  onPress={() => {
-                    triggerHaptic();
-                    // Handle Events action
-                  }}
+                  style={[styles.quickActionButton, styles.quickActionButtonWeb]}
+                  onPress={() => { triggerHaptic(); /* Handle Events action */ }}
                 >
                   <MaterialIcons name="event" size={18} color="#555" style={styles.quickActionIcon} />
                   <Text style={styles.quickActionText}>Events</Text> 
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={styles.quickActionButton}
-                  onPress={() => {
-                    triggerHaptic();
-                    // Handle Calendar Invite action
-                  }}
+                  style={[styles.quickActionButton, styles.quickActionButtonWeb]}
+                  onPress={() => { triggerHaptic(); /* Handle Calendar Invite action */ }}
                 >
                   <MaterialIcons name="calendar-today" size={18} color="#555" style={styles.quickActionIcon} />
                   <Text style={styles.quickActionText}>Calendar Invite</Text> 
                 </TouchableOpacity>
-
-              </ScrollView>
-            </View>
+              </View>
+            ) : (
+              // Native Layout: Horizontal ScrollView
+              <View style={styles.quickActionButtons}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionScrollContent}>
+                  <TouchableOpacity 
+                    style={styles.quickActionButton}
+                    onPress={() => { triggerHaptic(); /* Handle Photo action */ }}
+                  >
+                    <MaterialIcons name="image" size={18} color="#555" style={styles.quickActionIcon} />
+                    <Text style={styles.quickActionText}>Photo</Text> 
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.quickActionButton}
+                    onPress={() => { triggerHaptic(); /* Handle Document action */ }}
+                  >
+                    <MaterialIcons name="insert-drive-file" size={18} color="#555" style={styles.quickActionIcon} />
+                    <Text style={styles.quickActionText}>Document</Text> 
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.quickActionButton}
+                    onPress={() => { triggerHaptic(); /* Handle Camera action */ }}
+                  >
+                    <MaterialIcons name="camera-alt" size={18} color="#555" style={styles.quickActionIcon} />
+                    <Text style={styles.quickActionText}>Camera</Text> 
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.quickActionButton}
+                    onPress={() => { triggerHaptic(); /* Handle Location action */ }}
+                  >
+                    <MaterialIcons name="location-on" size={18} color="#555" style={styles.quickActionIcon} />
+                    <Text style={styles.quickActionText}>Location</Text> 
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.quickActionButton}
+                    onPress={() => { triggerHaptic(); /* Handle Contacts action */ }}
+                  >
+                    <MaterialIcons name="person" size={18} color="#555" style={styles.quickActionIcon} />
+                    <Text style={styles.quickActionText}>Contacts</Text> 
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.quickActionButton}
+                    onPress={() => { triggerHaptic(); /* Handle Poll action */ }}
+                  >
+                    <MaterialIcons name="poll" size={18} color="#555" style={styles.quickActionIcon} />
+                    <Text style={styles.quickActionText}>Poll</Text> 
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.quickActionButton}
+                    onPress={() => { triggerHaptic(); /* Handle Events action */ }}
+                  >
+                    <MaterialIcons name="event" size={18} color="#555" style={styles.quickActionIcon} />
+                    <Text style={styles.quickActionText}>Events</Text> 
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.quickActionButton}
+                    onPress={() => { triggerHaptic(); /* Handle Calendar Invite action */ }}
+                  >
+                    <MaterialIcons name="calendar-today" size={18} color="#555" style={styles.quickActionIcon} />
+                    <Text style={styles.quickActionText}>Calendar Invite</Text> 
+                  </TouchableOpacity>
+                </ScrollView>
+              </View>
+            )}
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -433,12 +471,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quickActionButtons: {
+    marginTop: 10, 
+  },
+  quickActionButtonsWebContainer: { // New style for web wrapper
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     marginTop: 10,
+    justifyContent: 'flex-start', // Or 'space-between' if preferred
+  },
+  quickActionButtonWeb: { // Specific adjustments for web buttons if needed
+    marginBottom: 8, // Add space below wrapped buttons
   },
   quickActionScrollContent: {
     paddingLeft: 4,
     paddingRight: 12,
-    alignItems: 'center',
+    alignItems: 'center', 
   },
   quickActionButton: {
     backgroundColor: '#F0F0F0',
