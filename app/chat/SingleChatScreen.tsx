@@ -19,6 +19,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 
 interface SingleChatScreenProps {
   id?: string;
@@ -27,6 +28,22 @@ interface SingleChatScreenProps {
 }
 
 const HEADER_HEIGHT = 64;
+
+// --- Haptic Utility Function (Simplified) ---
+const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' | 'selection' | 'success' | 'warning' | 'error' = 'light') => {
+  try {
+    switch (type) {
+      case 'light': await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); break;
+      case 'medium': await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); break;
+      case 'heavy': await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy); break;
+      case 'selection': await Haptics.selectionAsync(); break;
+      case 'success': await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); break;
+      case 'warning': await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); break;
+      case 'error': await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); break;
+    }
+  } catch (e) { console.error("Haptic trigger failed", e); }
+};
+// --- End Haptic Utility ---
 
 export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenProps) {
   const { width } = useWindowDimensions();
@@ -82,6 +99,8 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
   // Send message handler
   const sendMessage = () => {
     if (input.trim()) {
+      // Trigger success haptic
+      triggerHaptic('success'); 
       setMessages((prev) => [
         ...prev,
         { id: prev.length + 1, text: input, fromMe: true },
@@ -118,7 +137,7 @@ export default function SingleChatScreen({ id, name, avatar }: SingleChatScreenP
             <View style={styles.headerLeft}>
               <TouchableOpacity
                 style={styles.backButton}
-                onPress={() => router.back()}
+                onPress={() => { triggerHaptic(); router.back(); }}
               >
                 <Ionicons name="chevron-back" size={28} color="#007AFF" />
               </TouchableOpacity>

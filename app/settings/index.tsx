@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 
 // Type for SettingsItem props
 interface SettingsItemProps {
@@ -100,6 +101,15 @@ export default function SettingsScreen() {
   const [vibrateEnabled, setVibrateEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
+  // Simplified handler - just updates state and gives feedback
+  const handleVibrateChange = (newValue: boolean) => {
+    setVibrateEnabled(newValue);
+    // Provide haptic feedback for changing the setting itself
+    if (newValue) { 
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } 
+  };
+
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
@@ -153,12 +163,12 @@ export default function SettingsScreen() {
           onSwitchChange={setSoundEnabled} 
         />
         <SettingsItem 
-          label="Vibrate" 
-          iconName="vibrate"
+          label="Vibrate (Haptics)"
+          iconName="vibrate" 
           iconType='MaterialCommunityIcons'
           isSwitch 
           switchValue={vibrateEnabled} 
-          onSwitchChange={setVibrateEnabled} 
+          onSwitchChange={handleVibrateChange}
         />
 
         <SectionHeader title="Appearance" />

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { useFonts, Lobster_400Regular } from '@expo-google-fonts/lobster';
+import * as Haptics from 'expo-haptics';
 
 const users = [
   { id: '1', name: 'Daniel', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', online: true },
@@ -72,6 +73,42 @@ const allChats = [
   },
 ];
 
+// --- Haptic Utility Function (Simplified) --- 
+const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' | 'selection' | 'success' | 'warning' | 'error' = 'light') => {
+  try {
+    // Remove AsyncStorage check - always attempt to vibrate
+    // const isEnabled = await AsyncStorage.getItem(VIBRATE_SETTING_KEY);
+    // if (isEnabled === null || JSON.parse(isEnabled) === true) { 
+      switch (type) {
+        case 'light':
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          break;
+        case 'medium':
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          break;
+        case 'heavy':
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          break;
+        case 'selection':
+          await Haptics.selectionAsync();
+          break;
+        case 'success':
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          break;
+        case 'warning':
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          break;
+        case 'error':
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          break;
+      }
+    // }
+  } catch (e) {
+    console.error("Haptic trigger failed", e);
+  }
+};
+// --- End Haptic Utility ---
+
 export default function ChatListScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -89,6 +126,8 @@ export default function ChatListScreen() {
 
   // Logout handler
   const handleLogout = async () => {
+    // Before logging out, maybe trigger a haptic
+    triggerHaptic('warning'); 
     if (Platform.OS !== 'web') {
       await SecureStore.deleteItemAsync('accessToken');
       await SecureStore.deleteItemAsync('refreshToken');
@@ -109,7 +148,7 @@ export default function ChatListScreen() {
         <View> 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <Text style={styles.lobsterHeader}>Text.</Text>
-            <TouchableOpacity style={{ backgroundColor: '#edeaf3', borderRadius: 16, padding: 8 }} onPress={() => setModalVisible(true)}>
+            <TouchableOpacity style={styles.settingsButton} onPress={() => { triggerHaptic('medium'); setModalVisible(true); }}>
               <Feather name="settings" size={22} color="#222" />
             </TouchableOpacity>
           </View>
@@ -121,11 +160,11 @@ export default function ChatListScreen() {
           >
             <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
               <View style={styles.modalMenu}>
-                <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); router.push('/settings' as any); }}>
+                <TouchableOpacity style={styles.menuItem} onPress={() => { triggerHaptic(); setModalVisible(false); router.push('/settings' as any); }}>
                   <Feather name="settings" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
                   <Text style={styles.menuText}>Settings</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.menuItem} onPress={() => { setModalVisible(false); router.push('/profile' as any); }}>
+                <TouchableOpacity style={styles.menuItem} onPress={() => { triggerHaptic(); setModalVisible(false); router.push('/profile' as any); }}>
                   <MaterialCommunityIcons name="account" size={20} color="#7c5dfa" style={{ marginRight: 12 }} />
                   <Text style={styles.menuText}>Profile</Text>
                 </TouchableOpacity>
@@ -147,7 +186,14 @@ export default function ChatListScreen() {
                 key={user.id}
                 style={styles.avatarButton}
                 activeOpacity={0.7}
-                onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: user.id, name: user.name, avatar: user.avatar } })}
+                onPress={() => { 
+                  triggerHaptic();
+                  router.push({ pathname: '/chat/single/[id]', params: { id: user.id, name: user.name, avatar: user.avatar } });
+                }}
+                onLongPress={() => {
+                  triggerHaptic('medium');
+                  Alert.alert('User Action', `Long pressed on ${user.name}`);
+                }}
               >
                 <View style={styles.avatarWrapper}>
                   {user.avatar && user.name !== '+15' ? (
@@ -197,7 +243,14 @@ export default function ChatListScreen() {
                     marginVertical: 8, 
                   },
                 ]}
-                onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } })}
+                onPress={() => { 
+                  triggerHaptic();
+                  router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } });
+                }}
+                onLongPress={() => {
+                  triggerHaptic('medium');
+                  Alert.alert('Pinned Chat Action', `Long pressed on ${chat.name}`);
+                }}
               >
                 <Image source={{ uri: chat.avatar }} style={styles.pinnedAvatar} />
                 <Text style={styles.pinnedName}>{chat.name}</Text>
@@ -211,7 +264,19 @@ export default function ChatListScreen() {
             <Text style={styles.sectionTitle}>All Chats</Text>
           </View>
           {allChats.map((chat, idx) => (
-            <TouchableOpacity key={chat.id} style={styles.allChatRow} onPress={() => router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } })}>
+            <TouchableOpacity 
+              key={chat.id} 
+              style={styles.allChatRow} 
+              onPress={() => { 
+                triggerHaptic(); // Default light tap
+                router.push({ pathname: '/chat/single/[id]', params: { id: chat.id, name: chat.name, avatar: chat.avatar } });
+              }}
+              onLongPress={() => { 
+                triggerHaptic('heavy'); // Heavier feedback for long press
+                // TODO: Implement context menu or other long-press action
+                Alert.alert('Long Press', `Long pressed on ${chat.name}`);
+              }}
+            >
               {chat.avatar ? (
                 <Image source={{ uri: chat.avatar }} style={styles.allChatAvatar} />
               ) : (
@@ -413,5 +478,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: '500',
     maxWidth: 60,
+  },
+  settingsButton: {
+    backgroundColor: '#edeaf3',
+    borderRadius: 16,
+    padding: 8,
   },
 }); 
